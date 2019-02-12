@@ -1,8 +1,9 @@
+[![Build Status](https://travis-ci.org/MarsRaptor/aries-recs.svg?branch=master)](https://travis-ci.org/MarsRaptor/aries-recs)
 # Aries-RECS
 
 Aries-RECS for (Rough Entity Component System) is an Entity-Component-System (ECS) library written in, and mainly for, TypeScript (TS), the aim being to leverage the type safety provided by TS. 
 
-##Entity-Component-System (ECS)
+## Entity-Component-System (ECS)
 
 **Entity-Component-System** (ECS) is an architectural pattern (*commonly used in game development*) that consists, as the name entails, of three primary items:
 
@@ -17,13 +18,13 @@ Aries-RECS for (Rough Entity Component System) is an Entity-Component-System (EC
 
 *For more see the wikipedia page [here](https://en.wikipedia.org/wiki/Entity-component-system)*.
 
-##Aries-RECS
+## Aries-RECS
 
-###Mindset
+### Mindset
 
 The main purpose of this library is to provide ease of access to the different components, systems and managers from within the different contexts (global, inside managers and inside systems). Therefor emphasis is made on creating fully typed contexts and using runtime elements (weakly checked) smartly and sparingly.
 
-###What's inside
+### What's inside
 
 The library revolves around the following objects :
 
@@ -36,7 +37,7 @@ The library revolves around the following objects :
 
 ## Usage
 
-###Installation
+### Installation
 
 Installation is available by [NPM](https://npmjs.org):
 
@@ -44,7 +45,7 @@ Installation is available by [NPM](https://npmjs.org):
 npm i @marsraptor/aries-recs --save
 ```
 
-###Implementation
+### Implementation
 
 **Import:**
 
