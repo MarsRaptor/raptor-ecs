@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MarsRaptor/Aries-RECS.git"
+    "url": "git+https://github.com/MarsRaptor/aries-recs.git"
   },
   "author": "MarsRaptor <waltongregory.hobby@gmail.com> (https://twitter.com/MarsRaptor)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MarsRaptor/Aries-RECS/issues"
+    "url": "https://github.com/MarsRaptor/aries-recs/issues"
   },
-  "homepage": "https://github.com/MarsRaptor/Aries-RECS#readme",
+  "homepage": "https://github.com/MarsRaptor/aries-recs#readme",
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
