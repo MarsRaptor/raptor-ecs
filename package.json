@@ -1,7 +1,7 @@
 {
   "name": "@marsraptor/aries-recs",
   "version": "0.0.1",
-  "description": "Aries-RECS(RoughEntityComponentSystem) is a TypeScript Entity Component System library",
+  "description": "Aries-RECS(RoughEntityComponentSystem) is a TypeScript Entity-Component-System library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
