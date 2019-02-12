@@ -11,7 +11,7 @@ Aries-RECS for (Rough Entity Component System) is an Entity-Component-System (EC
 * **Components:** raw data (preferably no logic)
 * **Systems:** implementation that iteratively operates on a group of entities that share common components.
 
-**Some Advantages :**
+**Some Advantages**
 
 * Safe and simple dependency handling, since Components are not inter-dependant.
 * No need for complex inheritance trees, ECS uses composition.
@@ -47,7 +47,7 @@ npm i @marsraptor/aries-recs --save
 
 ### Implementation
 
-**Import:**
+**Import**
 
 In the current iteration of the definition file (d.ts), type checking is lack luster. Therefor to counter this it is recommended to use the following import statement:
 
@@ -65,7 +65,7 @@ import {} from '@marsraptor/aries-recs'
 
 ```
 
-**Component:**
+**Component**
 
 Components are just typed objects
 
@@ -82,7 +82,7 @@ class Position {
 }
 ```
 
-**EntitySystem:**
+**EntitySystem**
 
 EntitySystem classes use, in order, the following types: 
 
@@ -122,7 +122,7 @@ class ColourLogger extends EntitySystem<{ color: Colour }, { position: Position 
 
 *Remark: A priorty can be given as a second parameter to the System for processing order, by default systems are processed in order of instanciation.*
 
-**Context:**
+**Context**
 
 A Context is instaciated with a parameter of the following type :
 
@@ -158,10 +158,15 @@ let xc = new Context({
 *Remark: before processing a context **must** be initialized as follows:*
 
 ```ts
+//Initialise all Systems and managers
 xc.initialize();
+//Process systems 8 times
+for (let i = 0; i < 8; i++) {
+    xc.process();
+}
 ```
 
-It is also possible to add/remove EntitySystems and/or additional Managers at runtime. Type checking applies if the added systems are added to a context object, but be aware that adding a runtime EntitySystem from inside another is restricted by the types given to the System that adds the other. Also runtime systems are unrestricted when added by a manager so it may cause exceptions if certain component managers are not present in the context.
+It is also possible to add/remove EntitySystems and/or additional Managers at runtime. Type checking applies if the added systems are added to a context object, but be aware that adding a runtime EntitySystem from inside another is restricted by the types given to the System that adds the other. Also runtime systems are unrestricted when added by a manager so it may cause exceptions if certain component managers are not present in the context. Runtime elements are initialized when added.
 
 *Example:*
 
@@ -177,4 +182,4 @@ xc.addRuntimeSystem("logger2", new TextLogger());
 
 ## License
 
-[MIT License] (https://github.com/MarsRaptor/aries-recs/blob/master/LICENSE).
+[MIT License](https://github.com/MarsRaptor/aries-recs/blob/master/LICENSE).
