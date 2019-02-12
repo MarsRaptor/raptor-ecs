@@ -1,6 +1,6 @@
 import { EntityObserver } from "../entity/EntityObserver";
 import { Entity } from "../entity/Entity";
-import { Aspect } from "./Aspect";
+import { Aspect, AspectDescriptor } from "./Aspect";
 import { EntityManager } from "../entity/EntityManager";
 import { ManagerDescriptor } from "../manager/Manager";
 import { SharesProps } from "../util/UtilTypes";
@@ -17,10 +17,10 @@ export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTE
     private aspect: Aspect<EXPECTED, EXCLUDED,OPTIONAL>;
     protected context!: Context<EXPECTED & EXCLUDED & OPTIONAL, MANAGERS, SYSTEMS>;
 
-    constructor(aspect: Aspect<EXPECTED, EXCLUDED, OPTIONAL>,priority?:number) {
+    constructor(aspect: AspectDescriptor<EXPECTED, EXCLUDED, OPTIONAL>,priority?:number) {
         this._actives = new Set<Entity>();
         this.passive = false;
-        this.aspect = aspect;
+        this.aspect = new Aspect(aspect);
         this.priority = priority || this.id;
     }
 
@@ -41,7 +41,7 @@ export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTE
     }
 
     get systems(): EntitySystemDescriptor<SYSTEMS, EXPECTED & EXCLUDED &OPTIONAL> {
-        return this.context.systems;
+        return this.context.systems as any;
     }
 
     get actives(): Set<Entity> {

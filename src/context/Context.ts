@@ -4,6 +4,7 @@ import { Entity } from "../entity/Entity";
 import { EntityManager } from "../entity/EntityManager";
 import { ComponentManagerDescriptor } from "../component/ComponentManager";
 import { EntityObserver } from "../entity/EntityObserver";
+import {  SharesProps } from "../util/UtilTypes";
 
 export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
 
@@ -35,7 +36,7 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
         return this._registry.additionaMrgReg;
     }
 
-    get systems(): EntitySystemDescriptor<SYSTEMS, COMPONENTS> {
+    get systems():EntitySystemDescriptor<SYSTEMS,COMPONENTS>{
         return this._registry.systemReg;
     }
 
@@ -232,5 +233,5 @@ export type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
     entityManager?: EntityManager;
     componentMgrReg: ComponentManagerDescriptor<COMPONENTS>;
     additionaMrgReg?: ManagerDescriptor<MANAGERS>;
-    systemReg: EntitySystemDescriptor<SYSTEMS, COMPONENTS>;
+    systemReg:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
 };

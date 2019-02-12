@@ -6,12 +6,10 @@ export class Aspect<EXPECTED, EXCLUDED, OPTIONAL>{
 
     private expectedKeys: string[];
     private excludedKeys: string[];
-    private optionalKeys: string[];
 
     constructor(aspectDescriptor: AspectDescriptor<EXPECTED, EXCLUDED, OPTIONAL>) {
         this.expectedKeys = aspectDescriptor.expected !== null ? Object.getOwnPropertyNames(aspectDescriptor.expected) : [];
-        this.excludedKeys = aspectDescriptor.expected !== null ? Object.getOwnPropertyNames(aspectDescriptor.excluded) : [];
-        this.optionalKeys = aspectDescriptor.expected !== null ? Object.getOwnPropertyNames(aspectDescriptor.optional) : [];
+        this.excludedKeys = aspectDescriptor.excluded !== null ? Object.getOwnPropertyNames(aspectDescriptor.excluded) : [];
     }
 
     validate(CTX_COMPONENTS: ComponentManagerDescriptor<EXPECTED & EXCLUDED & OPTIONAL>, entity: Entity): boolean {
