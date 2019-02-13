@@ -1,7 +1,7 @@
 {
-  "name": "@marsraptor/aries-recs",
+  "name": "@marsraptor/raptor-ecs",
   "version": "0.0.1",
-  "description": "Aries-RECS(RoughEntityComponentSystem) is a TypeScript Entity-Component-System library",
+  "description": "Raptor-ecs is a TypeScript Entity-Component-System library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MarsRaptor/aries-recs.git"
+    "url": "git+https://github.com/MarsRaptor/raptor-ecs.git"
   },
   "author": "MarsRaptor <waltongregory.hobby@gmail.com> (https://twitter.com/MarsRaptor)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MarsRaptor/aries-recs/issues"
+    "url": "https://github.com/MarsRaptor/raptor-ecs/issues"
   },
-  "homepage": "https://github.com/MarsRaptor/aries-recs#readme",
+  "homepage": "https://github.com/MarsRaptor/raptor-ecs#readme",
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0",

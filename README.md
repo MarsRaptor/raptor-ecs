@@ -1,24 +1,7 @@
-[![Build Status](https://travis-ci.org/MarsRaptor/aries-recs.svg?branch=master)](https://travis-ci.org/MarsRaptor/aries-recs)
-# Aries-RECS
+[![Build Status](https://travis-ci.org/MarsRaptor/raptor-ecs.svg?branch=master)](https://travis-ci.org/MarsRaptor/raptor-ecs)
+# Raptor-ecs
 
-Aries-RECS for (Rough Entity Component System) is an Entity-Component-System (ECS) library written in, and mainly for, TypeScript (TS), the aim being to leverage the type safety provided by TS. 
-
-## Entity-Component-System (ECS)
-
-**Entity-Component-System** (ECS) is an architectural pattern (*commonly used in game development*) that consists, as the name entails, of three primary items:
-
-* **Entities:** uniquely identified object to which Components are linked.
-* **Components:** raw data (preferably no logic)
-* **Systems:** implementation that iteratively operates on a group of entities that share common components.
-
-**Some Advantages**
-
-* Safe and simple dependency handling, since Components are not inter-dependant.
-* No need for complex inheritance trees, ECS uses composition.
-
-*For more see the wikipedia page [here](https://en.wikipedia.org/wiki/Entity-component-system)*.
-
-## Aries-RECS
+Raptor-ecs is an Entity-Component-System (ECS) library written in and mainly for TypeScript, the aim being to leverage the type checking provided by TypeScript. 
 
 ### Mindset
 
@@ -28,7 +11,7 @@ The main purpose of this library is to provide ease of access to the different c
 
 The library revolves around the following objects :
 
-* **Entity:** contains an unique identifier, generated automatically on instaciation.
+* **Entity:** contains an unique identifier, generated automatically on instantiation.
 * **Manager:** abstract class that can be implemented for utility purposes, Managers observe Entity manipulations in a given Context.
 * **ComponentManager:** manages all instances of a given Component, allows for retrieval for a given Entity
 * **EntityManager:** manages all Entities in a given Context
@@ -42,7 +25,7 @@ The library revolves around the following objects :
 Installation is available by [NPM](https://npmjs.org):
 
 ```bash
-npm i @marsraptor/aries-recs --save
+npm i @marsraptor/raptor-ecs --save
 ```
 
 ### Implementation
@@ -54,14 +37,14 @@ In the current iteration of the definition file (d.ts), type checking is lack lu
 *Import like this:*
 
 ```ts
-import {} from '@marsraptor/aries-recs/src'
+import {} from '@marsraptor/raptor-ecs/src'
 
 ```
 
 *Instead of the usual:*
 
 ```ts
-import {} from '@marsraptor/aries-recs'
+import {} from '@marsraptor/raptor-ecs'
 
 ```
 
@@ -124,7 +107,7 @@ class ColourLogger extends EntitySystem<{ color: Colour }, { position: Position 
 
 **Context**
 
-A Context is instaciated with a parameter of the following type :
+A Context is instantiated with a parameter of the following type :
 
 ```ts
 type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
@@ -176,10 +159,25 @@ xc.getRuntimeManager<ComponentManager<Style>>("style").set(eX, new Style("italic
 xc.addRuntimeSystem("logger2", new TextLogger());
 ```
 
+## Entity-Component-System (ECS)
+
+**Entity-Component-System** (ECS) is an architectural pattern (*commonly used in game development*) that consists, as the name entails, of three primary items:
+
+* **Entities:** uniquely identified object to which Components are linked.
+* **Components:** raw data (preferably no logic)
+* **Systems:** implementation that iteratively operates on a group of entities that share common components.
+
+**Some Advantages**
+
+* Safe and simple dependency handling, since Components are not inter-dependant.
+* No need for complex inheritance trees, ECS uses composition.
+
+*For more see the wikipedia page [here](https://en.wikipedia.org/wiki/Entity-component-system)*.
+
 ### Resources
 
 * TODO
 
 ## License
 
-[MIT License](https://github.com/MarsRaptor/aries-recs/blob/master/LICENSE).
+[MIT](https://github.com/MarsRaptor/raptor-ecs/blob/master/LICENSE) License.
