@@ -4,7 +4,6 @@ import { Entity } from "../entity/Entity";
 import { EntityManager } from "../entity/EntityManager";
 import { ComponentManagerDescriptor } from "../component/ComponentManager";
 import { EntityObserver } from "../entity/EntityObserver";
-import {  SharesProps } from "../util/UtilTypes";
 
 export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
 
@@ -29,15 +28,15 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
     }
 
     get components(): ComponentManagerDescriptor<COMPONENTS> {
-        return this._registry.componentMgrReg;
+        return this._registry.components;
     }
 
     get managers(): ManagerDescriptor<MANAGERS> {
-        return this._registry.additionaMrgReg;
+        return this._registry.managers;
     }
 
     get systems():EntitySystemDescriptor<SYSTEMS,COMPONENTS>{
-        return this._registry.systemReg;
+        return this._registry.systems;
     }
 
     constructor(registry: ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS>) {
@@ -45,32 +44,31 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
         // MGRS
         this._registry = {
             entityManager: registry.entityManager || new EntityManager(),
-            componentMgrReg: registry.componentMgrReg,
-            additionaMrgReg: registry.additionaMrgReg || {} as ManagerDescriptor<MANAGERS>,
-            systemReg: registry.systemReg
+            components: registry.components,
+            managers: registry.managers || {} as ManagerDescriptor<MANAGERS>,
+            systems: registry.systems
         };
         this._managers = new Set<Manager>();
         this._registry.entityManager.setContext(this);
         this._managers.add(this._registry.entityManager);
-        let componentMgrKeys = Object.getOwnPropertyNames(this._registry.componentMgrReg);
+        let componentMgrKeys = Object.getOwnPropertyNames(this._registry.components);
         for (let index = 0; index < componentMgrKeys.length; index++) {
-            let mgr = (this._registry.componentMgrReg as any)[componentMgrKeys[index]];
+            let mgr = (this._registry.components as any)[componentMgrKeys[index]];
             mgr.setContext(this);
             this._managers.add(mgr);
         }
 
-        let additionalMgrKeys = Object.getOwnPropertyNames(this._registry.additionaMrgReg);
+        let additionalMgrKeys = Object.getOwnPropertyNames(this._registry.managers);
         for (let index = 0; index < additionalMgrKeys.length; index++) {
-            let mgr = (this._registry.additionaMrgReg as any)[additionalMgrKeys[index]] as Manager;
+            let mgr = (this._registry.managers as any)[additionalMgrKeys[index]] as Manager;
             mgr.setContext(this);
             this._managers.add(mgr);
         }
         // SYSS
         let systems = new Array<EntitySystem<any, any,any, MANAGERS, SYSTEMS>>();
-        let systemKeys = Object.getOwnPropertyNames(this._registry.systemReg);
+        let systemKeys = Object.getOwnPropertyNames(this._registry.systems);
         for (let index = 0; index < systemKeys.length; index++) {
-            let sys = (this._registry.systemReg as any)[systemKeys[index]] as EntitySystem<any, any,any, MANAGERS, SYSTEMS>;
-            sys.setContext(this);
+            let sys = (this._registry.systems as any)[systemKeys[index]] as EntitySystem<any, any,any, MANAGERS, SYSTEMS>;
             systems.push(sys)
         }
         this._systems = new Set<EntitySystem<any, any,any, MANAGERS, SYSTEMS>>(systems.sort((a,b)=>{return a.priority -b.priority}));
@@ -112,6 +110,8 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
             }
         };
 
+        this.initialize();
+
     }
 
     public createEntity(): Entity {
@@ -120,7 +120,7 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
 
     public initialize(): void {
         this._managers.forEach(mgr => mgr.initialize());
-        this._systems.forEach(sys => sys.initialize());
+        this._systems.forEach(sys => sys.initialize(this));
     }
 
     public addEntity(entity: Entity): void {
@@ -177,9 +177,8 @@ export class Context<COMPONENTS, MANAGERS, SYSTEMS>{
     // SYSTEMS
     addRuntimeSystem(name: string, system: EntitySystem<Partial<COMPONENTS>, Partial<COMPONENTS>,Partial<COMPONENTS>, any, any>) {
         Object.defineProperty(this.systems, name, { value: system });
-        system.setContext(this);
         this._systems = new Set<EntitySystem<any, any,any, MANAGERS, SYSTEMS>>(Array.from(this._systems.add(system)).sort((a,b)=>{return a.priority -b.priority}));
-        system.initialize();
+        system.initialize(this);
     }
 
     delRuntimeSystem(name: string) {
@@ -231,7 +230,7 @@ interface Performer {
 
 export type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
     entityManager?: EntityManager;
-    componentMgrReg: ComponentManagerDescriptor<COMPONENTS>;
-    additionaMrgReg?: ManagerDescriptor<MANAGERS>;
-    systemReg:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
+    components: ComponentManagerDescriptor<COMPONENTS>;
+    managers?: ManagerDescriptor<MANAGERS>;
+    systems:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
 };

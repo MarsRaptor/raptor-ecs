@@ -6,5 +6,4 @@ export * from './entity/EntityObserver';
 export * from './manager/Manager';
 export * from './system/Aspect';
 export * from './system/EntitySystem';
-export * from './util/Guid';
 export * from './util/UtilTypes';

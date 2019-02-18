@@ -3,7 +3,7 @@ import { Entity } from "../entity/Entity";
 
 export class ComponentManager<T> extends Manager {
 
-    protected instances!: { [uid: string]: T };
+    protected instances!: { [uid: number]: T };
 
     public initialize(): void {
         this.instances = {};
@@ -13,7 +13,7 @@ export class ComponentManager<T> extends Manager {
         this.del(entity);
     }
 
-    get(uid: string) {
+    get(uid: number) {
         return this.instances[uid];
     }
 

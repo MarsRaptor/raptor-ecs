@@ -32,20 +32,8 @@ npm i @marsraptor/raptor-ecs --save
 
 **Import**
 
-In the current iteration of the definition file (d.ts), type checking is lack luster. Therefor to counter this it is recommended to use the following import statement:
-
-*Import like this:*
-
-```ts
-import {} from '@marsraptor/raptor-ecs/src'
-
-```
-
-*Instead of the usual:*
-
 ```ts
 import {} from '@marsraptor/raptor-ecs'
-
 ```
 
 **Component**
@@ -112,9 +100,9 @@ A Context is instantiated with a parameter of the following type :
 ```ts
 type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
     entityManager?: EntityManager;
-    componentMgrReg: ComponentManagerDescriptor<COMPONENTS>;
-    additionaMrgReg?: ManagerDescriptor<MANAGERS>;
-    systemReg:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
+    components: ComponentManagerDescriptor<COMPONENTS>;
+    managers?: ManagerDescriptor<MANAGERS>;
+    systems:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
 };
 ```
 
@@ -122,27 +110,20 @@ type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
 
 ```ts
 let xc = new Context({
-    componentMgrReg: {
+    components: {
         color: new ComponentManager<Colour>(),
         text: new ComponentManager<TextA | TextB>(),
         position: new ComponentManager<Position>(),
         style: new ComponentManager<Style>()
     },
-    additionaMrgReg: {
+    managers: {
         bonus: new BonusManager()
     },
-    systemReg: {
+    systems: {
         logger: new ColourLogger() ,
         always: new AspectlessLogger(),
     }
 });
-```
-
-*Remark: before processing a context **must** be initialized as follows:*
-
-```ts
-//Initialise all Systems and managers
-xc.initialize();
 //Process systems 8 times
 for (let i = 0; i < 8; i++) {
     xc.process();

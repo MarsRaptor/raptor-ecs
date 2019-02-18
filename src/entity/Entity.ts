@@ -1,6 +1,8 @@
-import { BadGuid } from "../util/Guid";
-
 export class Entity {
-    uid: string = BadGuid.uid();
-    systemIndexes: Set<number> = new Set<number>();
+    uid: number;
+    systemIndexes: Set<number>;
+    constructor(uid: number) {
+        this.uid=uid;
+        this.systemIndexes= new Set<number>();
+    }
 }

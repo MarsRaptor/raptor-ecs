@@ -1,6 +1,6 @@
 {
   "name": "@marsraptor/raptor-ecs",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.1",
   "description": "Raptor-ecs is a TypeScript Entity-Component-System library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

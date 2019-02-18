@@ -1,9 +1,11 @@
 import { Manager } from "../manager/Manager";
 import { Entity } from "./Entity";
+import { IdPool } from "../util/IdPool";
 
 export class EntityManager extends Manager {
-    protected _disabled!: Set<string>;
-    protected instances!: { [uid: string]: Entity };
+    protected _disabled!: Set<number>;
+    protected instances!: { [uid: number]: Entity };
+    private _idPool!:IdPool;
 
     constructor() {
         super();
@@ -12,14 +14,15 @@ export class EntityManager extends Manager {
 
     initialize(): void {
         this.instances = {};
-        this._disabled = new Set<string>();
+        this._disabled = new Set<number>();
+        this._idPool = new IdPool();
     }
 
     createEntityInstance(): Entity {
-        return new Entity();
+        return new Entity(this._idPool.newID());
     }
 
-    getEntity(uid: string): Entity {
+    getEntity(uid: number): Entity {
         return this.instances[uid];
     }
 
@@ -33,6 +36,7 @@ export class EntityManager extends Manager {
 
     deleted(entity: Entity): void {
         delete this.instances[entity.uid];
+        this._idPool.free(entity.uid);
         this._disabled.delete(entity.uid);
     }
 
@@ -44,7 +48,7 @@ export class EntityManager extends Manager {
         this._disabled.add(entity.uid);
     }
 
-    isEnabled(uid: string): boolean {
+    isEnabled(uid: number): boolean {
         return !this._disabled.has(uid);
     }
 }

@@ -1,10 +1,10 @@
 import { EntityObserver } from "../entity/EntityObserver";
 import { Entity } from "../entity/Entity";
-import { Aspect, AspectDescriptor } from "./Aspect";
+import { AspectDescriptor } from "./Aspect";
 import { EntityManager } from "../entity/EntityManager";
 import { ManagerDescriptor } from "../manager/Manager";
 import { SharesProps } from "../util/UtilTypes";
-import { ComponentManagerDescriptor } from "../component/ComponentManager";
+import { ComponentManagerDescriptor, ComponentManager } from "../component/ComponentManager";
 import { Context } from "../context/Context";
 
 export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTEMS> implements EntityObserver {
@@ -14,18 +14,19 @@ export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTE
 
     private _actives: Set<Entity>;
     passive: boolean;
-    private aspect: Aspect<EXPECTED, EXCLUDED,OPTIONAL>;
     protected context!: Context<EXPECTED & EXCLUDED & OPTIONAL, MANAGERS, SYSTEMS>;
+
+    private expectedKeys: string[];
+    private excludedKeys: string[];
+    private optionalKeys: string[];
 
     constructor(aspect: AspectDescriptor<EXPECTED, EXCLUDED, OPTIONAL>,priority?:number) {
         this._actives = new Set<Entity>();
         this.passive = false;
-        this.aspect = new Aspect(aspect);
         this.priority = priority || this.id;
-    }
-
-    setContext(context: Context<EXPECTED & EXCLUDED & OPTIONAL, MANAGERS, SYSTEMS>) {
-        this.context = context;
+        this.expectedKeys = aspect.expected !== null ? Object.getOwnPropertyNames(aspect.expected) : [];
+        this.excludedKeys = aspect.excluded !== null ? Object.getOwnPropertyNames(aspect.excluded) : [];
+        this.optionalKeys = aspect.optional !== null ? Object.getOwnPropertyNames(aspect.optional) : [];
     }
 
     get entityManager(): EntityManager {
@@ -48,9 +49,11 @@ export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTE
         return this.actives;
     }
 
-    public initialize(): void {
-        // Nothing
+    public initialize(context: Context<EXPECTED & EXCLUDED & OPTIONAL, MANAGERS, SYSTEMS>) {
+        this.context = context;
+        this.validateContext();
     }
+
     protected inserted(entity: Entity): void { };
     protected removed(entity: Entity): void { };
 
@@ -90,11 +93,44 @@ export abstract class EntitySystem<EXPECTED, EXCLUDED, OPTIONAL, MANAGERS, SYSTE
         this.removed(entity);
     }
 
+    protected validateContext(){
+        for (let index = 0; index < this.expectedKeys.length; index++) {
+            if (!this.context.components.hasOwnProperty(this.expectedKeys[index])) {
+                return false;
+            }            
+        }
+        for (let index = 0; index < this.excludedKeys.length; index++) {
+            if (!this.context.components.hasOwnProperty(this.excludedKeys[index])) {
+                return false;
+            }   
+        }
+        for (let index = 0; index < this.optionalKeys.length; index++) {
+            if (!this.context.components.hasOwnProperty(this.optionalKeys[index])) {
+                return false;
+            }   
+        }
+        return true;
+    }
+
+    protected validateEntity(entity: Entity) :boolean{
+        for (let index = 0; index < this.expectedKeys.length; index++) {
+            if (!((this.context as any)[this.expectedKeys[index]] as ComponentManager<any>).has(entity)) {
+                return false;
+            }
+        }
+        for (let index = 0; index < this.excludedKeys.length; index++) {
+            if (((this.context as any)[this.excludedKeys[index]] as ComponentManager<any>).has(entity)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     protected check(entity: Entity): void {
 
         let contains: boolean = entity.systemIndexes.has(this.id);
         
-        let interested: boolean = this.aspect.validate(this.context.components, entity);
+        let interested: boolean = this.validateEntity(entity);
         
         if (interested && !contains) {
             this.insertToSystem(entity);
