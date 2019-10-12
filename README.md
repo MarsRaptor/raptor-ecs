@@ -1,21 +1,25 @@
-[![Build Status](https://travis-ci.org/MarsRaptor/raptor-ecs.svg?branch=master)](https://travis-ci.org/MarsRaptor/raptor-ecs)
 # Raptor-ecs
+
+[![NPM Package](https://nodei.co/npm-dl/@marsraptor/raptor-ecs.png?months=6&height=1)](https://npmjs.org/package/@marsraptor/raptor-ecs)
+
+[![Build Status](https://travis-ci.org/MarsRaptor/raptor-ecs.svg)](https://travis-ci.org/MarsRaptor/raptor-ecs)
+[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
 Raptor-ecs is an Entity-Component-System (ECS) library written in and mainly for TypeScript, the aim being to leverage the type checking provided by TypeScript. 
 
-### Mindset
+## Entity-Component-System (ECS)
+Safe and simple dependency handling, since Components are not inter-dependant.
+No need for complex inheritance trees, ECS uses composition.
 
-The main purpose of this library is to provide ease of access to the different components, systems and managers from within the different contexts (global, inside managers and inside systems). Therefor emphasis is made on creating fully typed contexts and using runtime elements (weakly checked) smartly and sparingly.
+*For more see the wikipedia page [here](https://en.wikipedia.org/wiki/Entity-component-system)*.
 
 ### What's inside
 
 The library revolves around the following objects :
 
-* **Entity:** contains an unique identifier, generated automatically on instantiation.
-* **Manager:** abstract class that can be implemented for utility purposes, Managers observe Entity manipulations in a given Context.
-* **ComponentManager:** manages all instances of a given Component, allows for retrieval for a given Entity
-* **EntityManager:** manages all Entities in a given Context
-* **EntitySystem:** executes logic on Entities of a given Aspect, this meaning Entities that share the same expected, excluded and optional Components.
+* **Entity:** uniquely identified object to which Components are linked.
+* **Component:** raw data (preferably no logic).
+* **System:** implementation that iteratively operates on a group of entities that share common components.
 * **Context:** main object, contains and orchestrates all of the above.
 
 ## Usage
@@ -35,125 +39,116 @@ npm i @marsraptor/raptor-ecs --save
 ```ts
 import {} from '@marsraptor/raptor-ecs'
 ```
+**Entity**
+
+An entity comes with the ability to get, set, unset or gauge the ownership of a Component.
+Entities are created thusly :
+
+```ts
+const context = new Context();
+let entity = context.createEntity()
+```
+
+*Optionaly a ComponentAssembly object can be given as parameter, see the next section for more information*
 
 **Component**
 
-Components are just typed objects
+Components are registered thusly.
+*Warning : 2 components cannot share the same name, this will throw a runtime error!*
 
 *Example:*
 
 ```ts
-class Position {
-    x: number;
-    y: number;
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
+const Position2D = Component.new<{x:number,y:number}>("Position2D");
 ```
 
-**EntitySystem**
-
-EntitySystem classes use, in order, the following types: 
-
-* *EXPECTED:* components expected to be present on the evaluated Entity
-* *EXCLUDED:* components expected not to be present on the evaluated Entity
-* *OPTIONAL:* components expected to be available in the current EntitySystem 
-* *MANAGERS:* managers expected to be present in the current EntitySystem 
-* *SYSTEMS :* systems expected to be present in the current EntitySystem 
+ComponentAssembly objects are builders for creating entities with preset components. They can be built with code or can parse a JSON string of an array of tuples ([ComponentName,Value][]). Building component assemblies manually has the advantage of being type checked when adding a component.
 
 *Example:*
 
 ```ts
-class ColourLogger extends EntitySystem<{ color: Colour }, { position: Position },{}, any, any>{
-
-    constructor() {
-        super({
-            expected: {
-                color: new AspectHolder<Colour>(),
-            },
-            excluded: {
-                position: new AspectHolder<Position>()
-            },
-            optional :null
-        });
-    }
-
-    protected processEntities(entities: Set<Entity>): void {
-        entities.forEach(
-            entity => {
-                this.components.position.set(entity, new Position(1, 2));
-                console.log("ColourLogger : ", this.components.color.get(entity.uid).hex);
-            }
-        )
-    }
-}
+const context = new Context();
+let parsedAssembly = ComponentAssembly.parseString("[[\"ColourName\",\"grey\"]]");
+let builtAssembly = new ComponentAssembly([Position2D,{x:0,y:0}],[Excludable,{excluded:false}]);
+builtAssembly.add(ColourName,"red");
+let parsedEntity = context.createEntity(parsedAssembly);
+let builtEntity = context.createEntity(builtAssembly);
 ```
+**System**
 
-*Remark: A priorty can be given as a second parameter to the System for processing order, by default systems are processed in order of instanciation.*
+Systems are where the bulk of the logic resides. They are characterized by an aspect. An aspect consists of 3 lists of component types (registered as mentionned above) :
+* *allOf:* components expected to be present on the evaluated Entity
+* *noneOf:* components expected not to be present on the evaluated Entity
+* *oneOf:* component within a list expected to be present on the evaluated Entity
+
+In addition to the aspect a context object is required to instanciate a System.
+The *update* method is required to be implemented, the elapsed time is given for time critical logic.
+
+*Optionaly an object holder (number holder in this instance) can be given to the system class in order to manage the entities that qualify for the system (e.g. for ordering on when an entity is added).*
+
+*Example:*
+
+```ts
+const Position2D = Component.new<{x:number,y:number}>("Position2D");
+const ColourName = Component.new<string>("ColourName");
+const ColourHex = Component.new<string>("ColourHex");
+const Excludable = Component.new<{excluded:boolean}>("Excludable");
+
+class ExampleSystem extends System{
+    constructor(context:Context) {
+        super(context,{allOf:[Position2D],oneOf:[ColourName,ColourHex],noneOf:[Excludable]});        
+    }
+    update(elapsed: number): void {
+        for (let entityIndex = 0; entityIndex < this.entityIdHolder.elements.length; entityIndex++) {
+            const entityId = this.entityIdHolder.elements[entityIndex];
+            const entity = this.ctx.getEntity(entityId);
+            const colourStr = entity.get(ColourName) || entity.get(ColourHex)
+            console.log(`${entity.get(Position2D)} ${colourStr} `)
+        }
+    }
+
+} 
+```
+*Remark: A priorty is given in order of instanciation.*
 
 **Context**
 
-A Context is instantiated with a parameter of the following type :
+A Context is the main object, it is what allows for the creation of entities and contains all components and systems.
+Contexts are created thusly :
 
 ```ts
-type ContextDescriptor<COMPONENTS, MANAGERS, SYSTEMS> = {
-    entityManager?: EntityManager;
-    components: ComponentManagerDescriptor<COMPONENTS>;
-    managers?: ManagerDescriptor<MANAGERS>;
-    systems:  EntitySystemDescriptor<SYSTEMS,COMPONENTS>;
-};
+const context = new Context();
 ```
+
+Contexts have one major function, *update*, the elapsed time must be given for time critical logic of contained systems.
 
 *Example:*
 
 ```ts
-let xc = new Context({
-    components: {
-        color: new ComponentManager<Colour>(),
-        text: new ComponentManager<TextA | TextB>(),
-        position: new ComponentManager<Position>(),
-        style: new ComponentManager<Style>()
-    },
-    managers: {
-        bonus: new BonusManager()
-    },
-    systems: {
-        logger: new ColourLogger() ,
-        always: new AspectlessLogger(),
-    }
-});
-//Process systems 8 times
-for (let i = 0; i < 8; i++) {
-    xc.process();
+const context = new Context();
+var t = Date.now();
+var loop = (time:number)=>{
+    let deltaTime = time - t;
+    t = time;
+    context.update(deltaTime)
+    requestAnimationFrame(loop);
 }
+requestAnimationFrame(loop);
 ```
 
-It is also possible to add/remove EntitySystems and/or additional Managers at runtime. Type checking applies if the added systems are added to a context object, but be aware that adding a runtime EntitySystem from inside another is restricted by the types given to the System that adds the other. Also runtime systems are unrestricted when added by a manager so it may cause exceptions if certain component managers are not present in the context. Runtime elements are initialized when added.
+A context is able to, components permitting, parse and serialize all entities to JSON. For parsing the JSON string must be of the type [ComponentName,Value][][].
 
 *Example:*
 
 ```ts
-xc.addRuntimeManager("style", new ComponentManager<Style>());
-xc.getRuntimeManager<ComponentManager<Style>>("style").set(eX, new Style("italic"));
-xc.addRuntimeSystem("logger2", new TextLogger());
+const context = new Context();
+const ColourName = Component.new<string>("ColourName");
+const ColourHex = Component.new<string>("ColourHex");
+context.parseString("[[[\"ColourName\",\"blue\"]],[[\"ColourHex\",\"#00FF00\"]]]");
+let serializedEntities = JSON.stringify(context) // uses context.toJSON()
 ```
 
-## Entity-Component-System (ECS)
-
-**Entity-Component-System** (ECS) is an architectural pattern (*commonly used in game development*) that consists, as the name entails, of three primary items:
-
-* **Entities:** uniquely identified object to which Components are linked.
-* **Components:** raw data (preferably no logic)
-* **Systems:** implementation that iteratively operates on a group of entities that share common components.
-
-**Some Advantages**
-
-* Safe and simple dependency handling, since Components are not inter-dependant.
-* No need for complex inheritance trees, ECS uses composition.
-
-*For more see the wikipedia page [here](https://en.wikipedia.org/wiki/Entity-component-system)*.
+In addition a context contains an EventManager (courtesy of [library-event-manager](https://github.com/emrahgunduz/library-event-manager)). This event manager can be used from anywhere the context is accessible (in the context declaration scope as well as in systems).
 
 ### Resources
 
