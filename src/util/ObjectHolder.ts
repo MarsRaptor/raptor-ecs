@@ -12,18 +12,12 @@ export abstract class ObjectHolder<T>{
     }
 
     has(element: T | number): boolean {
-        if (typeof element === "number") {
-            return element > -1 && element < this.elements.length && !!this.elements[element];
-
-        }else{
-            for (let i = 0; i < this.elements.length; i++) {
-                if (element == this.elements[i]) {
-                    return true;
-                }
+        for (let i = 0; i < this.elements.length; i++) {
+            if (element == this.elements[i]) {
+                return true;
             }
-            return false;
         }
-    
+        return false;
     }
 
     abstract add(element: T): void;
@@ -38,13 +32,9 @@ export class SimpleObjectHolder<T> extends ObjectHolder<T> {
     }
 
     del(element: T | number): void {
-        if (typeof element === "number") {
-            fastSplice(this.elements, element);
-        }else{
-            for (let i = 0; i < this.elements.length; i++) {
-                if (element == this.elements[i]) {
-                    fastSplice(this.elements, i);
-                }
+        for (let i = 0; i < this.elements.length; i++) {
+            if (element == this.elements[i]) {
+                fastSplice(this.elements, i);
             }
         }
     }

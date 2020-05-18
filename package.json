@@ -1,6 +1,6 @@
 {
   "name": "@marsraptor/raptor-ecs",
-  "version": "0.0.3-alpha.1",
+  "version": "0.0.3-alpha.3",
   "description": "Raptor-ecs is a TypeScript Entity-Component-System library",
   "main": ".dist/index.js",
   "types": ".dist/index.d.ts",
@@ -19,11 +19,11 @@
   },
   "homepage": "https://github.com/MarsRaptor/raptor-ecs#readme",
   "devDependencies": {
-    "@types/chai": "^4.2.3",
+    "@types/chai": "^4.2.11",
     "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "typescript": "^3.3.3",
-    "@types/mocha": "^5.2.7"
+    "mocha": "^7.1.2",
+    "typescript": "^3.9.2",
+    "@types/mocha": "^7.0.2"
   },
   "dependencies": {
     "library-event-manager": "^1.0.20",
